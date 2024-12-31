@@ -3,7 +3,7 @@ import random
 import numpy as np
 from scipy.stats import unitary_group
 from scipy.optimize import minimize, dual_annealing
-from pianoq.misc.mplc_writeup_imports import tnow
+from qwfs.qwfs_utils import tnow
 from functools import partial
 from qwfs.qwfs_result import QWFSResult
 try:

@@ -42,22 +42,6 @@ class QWFSResult:
         data = np.load(path, allow_pickle=True)
         self.__dict__.update(data)
 
-    def show(self):
-        # all configurations
-        fig, axes = plt.subplots(len(self.configs), len(self.T_methods))
-        for config_no, config in enumerate(self.configs):
-            for T_method_no, T_method in enumerate(self.T_methods):
-                # upper_lim = 1 if T_method == 'unitary' else 2
-                # imm = axes[config_no, T_method_no].imshow(results[T_method_no, config_no], clim=(0, upper_lim))
-                if len(self.configs) > 1:
-                    ax = axes[config_no, T_method_no]
-                else:
-                    ax = axes[T_method_no]
-                imm = ax.imshow(self.results[T_method_no, config_no], aspect='auto')
-                ax.set_title(rf'{config}, {T_method}')
-                fig.colorbar(imm, ax=ax)
-        fig.show()
-
     def show_scatterplots(self):
         # Create a figure with N_T_methods rows and N_configs columns
         fig, axes = plt.subplots(
