@@ -113,8 +113,7 @@ class QWFSSimulation:
         else:
             raise NotImplementedError()
 
-    def optimize(self, algo="slsqp", out_mode=None):
-        # import numpy as np # really weird, don't understand why I need this
+    def optimize(self, algo="autograd-adam", out_mode=None):
         if out_mode is None:
             out_mode = self.DEFAULT_OUT_MODE
 
