@@ -4,9 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import datetime
 
+# 1.1
 
-def tnow():
-    return datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
 
 
 def get_slm3_intensities(res, T_method='gaus_iid'):
@@ -77,18 +76,6 @@ def get_slm1_intensities(res, config='SLM1-only-T', T_method='gaus_iid', alg='L-
 
     return I_outs, I_focuss
 
-
-def get_res_phases(res, config='SLM1-only-T', T_method='gaus_iid', alg='L-BFGS-B'):
-    try_nos = range(res.N_tries)
-    phases = []
-    for try_no in try_nos:
-        alg_ind = np.where(res.algos == alg)[0]
-        conf_ind = np.where(res.configs == config)[0]
-        T_method_ind = np.where(res.T_methods == T_method)[0]
-
-        slm_phases = res.best_phases[T_method_ind, conf_ind, try_no, alg_ind].squeeze()
-        phases.append(slm_phases)
-    return np.array(phases).squeeze()
 
 
 def show_tot_energy_at_planes(I_middles, I_outs):

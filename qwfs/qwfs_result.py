@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 import matplotlib.pyplot as plt
 
 class QWFSResult:
@@ -12,6 +13,7 @@ class QWFSResult:
         # results.shape == N_T_methods, N_configs, N_tries, N_algos
         self.results = None
         self.Ts = None
+        self.max_SVDs = None
         # best_phases.shape == N_T_methods, N_configs, N_tries, N_algos, self.N
         self.best_phases = None
         self.sig_for_gauss_iid = np.sqrt(2)/2
@@ -35,8 +37,20 @@ class QWFSResult:
     def N_modes(self):
         return self.best_phases.shape[-1]
 
-    def saveto(self, path):
-        np.savez(path, **self.__dict__)
+    def saveto(self, path, save_Ts=False, save_phases=True):
+        d = copy.deepcopy(self.__dict__)
+        if not save_phases:
+            d.pop('best_phases')
+        if not save_Ts:
+            d.pop('Ts')
+        np.savez(path, **d)
+
+    def get_phases(self, config='SLM1-only-T', T_method='gaus_iid', alg='autograd-adam', try_no=0):
+        alg_ind = np.where(self.algos == alg)[0]
+        conf_ind = np.where(self.configs == config)[0]
+        T_method_ind = np.where(self.T_methods == T_method)[0]
+        slm_phases = self.best_phases[T_method_ind, conf_ind, try_no, alg_ind]
+        return slm_phases.squeeze()
 
     def loadfrom(self, path):
         data = np.load(path, allow_pickle=True)
@@ -110,11 +124,6 @@ class QWFSResult:
                 if config_idx == self.N_configs - 1:
                     ax.legend(loc='best', bbox_to_anchor=(1.05, 1), borderaxespad=0.)
 
-        # Adjust layout
-        plt.tight_layout()
-
-        # Add an overall title
-        fig.suptitle('Performance Across T-Methods and Configurations', y=1.02)
 
     def print(self, only_slm3=False):
         for config_no, config in enumerate(self.configs):

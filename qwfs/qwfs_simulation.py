@@ -1,9 +1,8 @@
 import time
-import random
 import numpy as np
 from scipy.stats import unitary_group
 from scipy.optimize import minimize, dual_annealing
-from qwfs.qwfs_utils import tnow
+from qwfs.simple_utils import tnow
 from functools import partial
 from qwfs.qwfs_result import QWFSResult
 try:
@@ -238,7 +237,8 @@ class QWFSSimulation:
         self.slm_phases = self.slm_phases.detach().numpy() if isinstance(self.slm_phases,
                                                                          torch.Tensor) else self.slm_phases
 
-    def statistics(self, algos, configs, T_methods, N_tries=1, saveto_path=None, verbose=False):
+    def statistics(self, algos, configs, T_methods, N_tries=1, saveto_path=None, verbose=False,
+                   save_Ts=False, save_phases=True):
         saveto_path = saveto_path or f"C:\\temp\\{tnow()}_qwfs.npz"
         qres = QWFSResult()
         qres.configs = configs
@@ -255,6 +255,7 @@ class QWFSSimulation:
         qres.results = np.zeros((N_T_methods, N_configs, N_tries, N_algos))
         qres.best_phases = np.zeros((N_T_methods, N_configs, N_tries, N_algos, self.N))
         Ts = []
+        max_SVDs = []
 
         for try_no in range(N_tries):
             print(f'{try_no=}')
@@ -262,6 +263,8 @@ class QWFSSimulation:
                 self.T_method = T_method
                 self.reset_T()
                 Ts.append(self.T)
+                max_SVD = np.linalg.svd(self.T @ self.T.transpose(), compute_uv=False).max()
+                max_SVDs.append(max_SVD)
                 for config_no, config in enumerate(configs):
                     self.config = config
                     for algo_no, algo in enumerate(algos):
@@ -283,13 +286,13 @@ class QWFSSimulation:
                             print(rf'{algo=}, {I_tot=:.4f}, {I_good=:.4f}, {self.f_calls=}, {T=:.2f}')
 
             qres.Ts = np.array(Ts)
+            qres.max_SVDs = np.array(max_SVDs)
 
-            qres.saveto(saveto_path)
+            qres.saveto(saveto_path, save_Ts=save_Ts, save_phases=save_phases)
 
         return qres
 
 
-# thanks gpt-4o
 def resize_array(arr, desired_size, use_torch=False):
     """
     Resizes (stretches) an array/tensor to a new size deterministically, evenly distributing
