@@ -257,6 +257,9 @@ class QWFSSimulation:
         Ts = []
         max_SVDs = []
 
+        if verbose:
+            print(f"{'T_method':<12} {'algo':<20} {'config':<16} {'I_good':<8} {'f_calls':<8} {'T':<5}")
+            print("-" * 75)
         for try_no in range(N_tries):
             print(f'{try_no=}')
             for T_method_no, T_method in enumerate(T_methods):
@@ -284,7 +287,9 @@ class QWFSSimulation:
                         qres.best_phases[T_method_no, config_no, try_no, algo_no] = np.angle(self.slm_phases)
                         T = time.time()-start_t
                         if verbose:
-                            print(rf'{algo=}, {I_tot=:.4f}, {I_good=:.4f}, {self.f_calls=}, {T=:.2f}')
+                            print(f"{T_method:<12} {algo:<20} {config:<16} {I_good:<8.4f} {self.f_calls:<8} {T:<5.2f}")
+
+
 
             qres.Ts = np.array(Ts)
             qres.max_SVDs = np.array(max_SVDs)
