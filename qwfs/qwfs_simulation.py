@@ -245,6 +245,7 @@ class QWFSSimulation:
         qres.N_tries = N_tries
         qres.algos = algos
         qres.sig_for_gauss_iid = self.sig_for_gauss_iid
+        qres._N_modes = self.N
         qres.N_pixels = self.N_pixels
 
         N_algos = len(algos)

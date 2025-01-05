@@ -18,6 +18,7 @@ class QWFSResult:
         # best_phases.shape == N_T_methods, N_configs, N_tries, N_algos, self.N
         self.best_phases = None
         self.sig_for_gauss_iid = np.sqrt(2)/2
+        self._N_modes = None
 
         if path:
             self.loadfrom(path)
@@ -36,7 +37,12 @@ class QWFSResult:
 
     @property
     def N_modes(self):
-        return self.best_phases.shape[-1]
+        if self._N_modes is not None:
+            return self._N_modes
+        elif self.best_phases is not None:
+            return self.best_phases.shape[-1]
+        else:
+            raise ValueError('N_modes not defined')
 
     def saveto(self, path, save_Ts=False, save_phases=True):
         d = copy.deepcopy(self.__dict__)
@@ -124,6 +130,7 @@ class QWFSResult:
                     ax.set_ylabel(t_method, fontweight='bold',fontsize=12)
                 if config_idx == self.N_configs - 1:
                     ax.legend(loc='best', bbox_to_anchor=(1.05, 1), borderaxespad=0.)
+        return fig
 
 
     def print(self, only_slm3=False):
