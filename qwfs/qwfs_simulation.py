@@ -252,6 +252,7 @@ class QWFSSimulation:
         N_T_methods = len(T_methods)
 
         qres.results = np.zeros((N_T_methods, N_configs, N_tries, N_algos))
+        qres.tot_power_results = np.zeros((N_T_methods, N_configs, N_tries, N_algos))
         qres.best_phases = np.zeros((N_T_methods, N_configs, N_tries, N_algos, self.N))
         Ts = []
         max_SVDs = []
@@ -279,6 +280,7 @@ class QWFSSimulation:
                         I_good = np.abs(v_out[out_mode]) ** 2
                         I_tot = (np.abs(v_out) ** 2).sum()
                         qres.results[T_method_no, config_no, try_no, algo_no] = I_good
+                        qres.tot_power_results[T_method_no, config_no, try_no, algo_no] = I_tot
                         qres.best_phases[T_method_no, config_no, try_no, algo_no] = np.angle(self.slm_phases)
                         T = time.time()-start_t
                         if verbose:

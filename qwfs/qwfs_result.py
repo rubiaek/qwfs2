@@ -12,6 +12,7 @@ class QWFSResult:
         self.N_pixels = None
         # results.shape == N_T_methods, N_configs, N_tries, N_algos
         self.results = None
+        self.tot_power_results = None
         self.Ts = None
         self.max_SVDs = None
         # best_phases.shape == N_T_methods, N_configs, N_tries, N_algos, self.N
