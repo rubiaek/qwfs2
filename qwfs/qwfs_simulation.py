@@ -1,8 +1,8 @@
 import time
+import datetime
 import numpy as np
 from scipy.stats import unitary_group
 from scipy.optimize import minimize, dual_annealing
-from qwfs.simple_utils import tnow
 from functools import partial
 from qwfs.qwfs_result import QWFSResult
 try:
@@ -74,7 +74,7 @@ class QWFSSimulation:
             v_out = fft(after_T2) / np.sqrt(self.N)
         elif self.config == 'SLM2-simple-OPC':
             v_in_one_hot = np.zeros_like(self.v_in)
-            v_in_one_hot[self.DEFAULT_OUT_MODE] = 1  # TODO: this assumes that we try to optimize the self.DEFAULT_OUT_MODE
+            v_in_one_hot[self.DEFAULT_OUT_MODE] = 1  # this assumes that we try to optimize the self.DEFAULT_OUT_MODE
             v_out = self.T @ (self.slm_phases * (self.T.transpose() @ v_in_one_hot))
         elif self.config == 'SLM2-simple':
             v_in_one_hot = np.zeros_like(self.v_in)
@@ -160,7 +160,6 @@ class QWFSSimulation:
                 intensity = cost_func(self.slm_phases)
                 return intensity, None
             elif self.config == 'SLM2-simple-OPC' or self.config == 'SLM2-simple':
-                # TODO: nicer code
                 O1 = self.DEFAULT_OUT_MODE if self.config == 'SLM2-simple-OPC' else self.DEFAULT_ONEHOT_INPUT_MODE
                 at_slm = (self.T[O1, :] * self.T[self.DEFAULT_OUT_MODE, :])
                 self.slm_phases = -np.angle(at_slm)
@@ -298,6 +297,11 @@ class QWFSSimulation:
             qres.saveto(saveto_path, save_Ts=save_Ts, save_phases=save_phases)
 
         return qres
+
+
+
+def tnow():
+    return datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
 
 
 def resize_array(arr, desired_size, use_torch=False):
