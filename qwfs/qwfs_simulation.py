@@ -27,9 +27,7 @@ class QWFSSimulation:
         self.T_method = T_method
         self.config = config
         self.sig_for_gauss_iid = np.sqrt(2)/2
-        self.cost_function = 'energy'
         self.T = self.get_diffuser()
-        self.M = self.get_diffuser()
 
         self.v_in = 1/np.sqrt(self.N) * np.ones(self.N, dtype=np.complex128)
         self.slm_phases = np.exp(1j*np.zeros(self.N, dtype=np.complex128))
@@ -52,33 +50,26 @@ class QWFSSimulation:
 
     def reset_T(self):
         self.T = self.get_diffuser()
-        self.M = self.get_diffuser()
 
     def propagate(self, use_torch=False):
 
         fft = torch.fft.fft if use_torch else np.fft.fft
 
-        if self.config == 'SLM1' or self.config == 'SLM1-same-mode':
+        if self.config == 'SLM1':
             after_T = self.T @ self.T.transpose() @ (self.slm_phases * self.v_in)
-            v_out = fft(after_T) / np.sqrt(self.N)
-        elif self.config == 'SLM1-after':
-            after_T = self.slm_phases * (self.T @ self.T.transpose() @ self.v_in)
             v_out = fft(after_T) / np.sqrt(self.N)
         elif self.config == 'SLM1-only-T':
             v_out = self.T @ (self.slm_phases * self.v_in)
-        elif self.config == 'SLM1-only-T-after':
-            after_T = self.slm_phases * (self.T @ self.v_in)
-            v_out = fft(after_T) / np.sqrt(self.N)
         elif self.config == 'SLM2' or self.config == 'SLM2-same-mode':
             after_T2 = self.T @ (self.slm_phases * (self.T.transpose() @ self.v_in))
             v_out = fft(after_T2) / np.sqrt(self.N)
-        elif self.config == 'SLM2-simple-OPC':
-            v_in_one_hot = np.zeros_like(self.v_in)
-            v_in_one_hot[self.DEFAULT_OUT_MODE] = 1  # this assumes that we try to optimize the self.DEFAULT_OUT_MODE
-            v_out = self.T @ (self.slm_phases * (self.T.transpose() @ v_in_one_hot))
         elif self.config == 'SLM2-simple':
             v_in_one_hot = np.zeros_like(self.v_in)
             v_in_one_hot[self.DEFAULT_ONEHOT_INPUT_MODE] = 1
+            v_out = self.T @ (self.slm_phases * (self.T.transpose() @ v_in_one_hot))
+        elif self.config == 'SLM2-simple-OPC':
+            v_in_one_hot = np.zeros_like(self.v_in)
+            v_in_one_hot[self.DEFAULT_OUT_MODE] = 1  # this assumes that we try to optimize the self.DEFAULT_OUT_MODE
             v_out = self.T @ (self.slm_phases * (self.T.transpose() @ v_in_one_hot))
         elif self.config == 'SLM3' or self.config == 'SLM3-same-mode':
             after_SLM_second_time = self.slm_phases * (self.T @ self.T.transpose() @ (self.slm_phases * self.v_in))
@@ -104,14 +95,8 @@ class QWFSSimulation:
         I_focus = I_out[out_mode]
         self.f_calls += 1
 
-        if self.cost_function == 'energy':
-            return -I_focus
-        elif self.cost_function == 'contrast':
-            return -I_focus / I_out.sum()
-        elif self.cost_function == 'total_energy':
-            return -I_out.sum()
-        else:
-            raise NotImplementedError()
+        return -I_focus
+
 
     def optimize(self, algo="autograd-adam", out_mode=None):
         if out_mode is None:
@@ -193,7 +178,6 @@ class QWFSSimulation:
 
         dtype = torch.complex128
         self.T = torch.tensor(self.T, dtype=dtype, requires_grad=False)
-        self.M = torch.tensor(self.M, dtype=dtype, requires_grad=False)
         self.v_in = torch.tensor(self.v_in, dtype=dtype, requires_grad=False)
 
         def closure():
@@ -230,7 +214,6 @@ class QWFSSimulation:
     def reset_to_numpy(self):
         """Ensure all attributes are reset to NumPy arrays."""
         self.T = self.T.detach().numpy() if isinstance(self.T, torch.Tensor) else self.T
-        self.M = self.M.detach().numpy() if isinstance(self.M, torch.Tensor) else self.M
         self.v_in = self.v_in.detach().numpy() if isinstance(self.v_in, torch.Tensor) else self.v_in
         self.slm_phases = self.slm_phases.detach().numpy() if isinstance(self.slm_phases,
                                                                          torch.Tensor) else self.slm_phases
