@@ -315,7 +315,7 @@ def resize_array(arr, desired_size, use_torch=False):
         repeats = torch.full((N,), floor, dtype=torch.long, device=arr.device)
     else:
         repeat_func = np.repeat
-        repeats = np.full((N,), floor, dtype=int)
+        repeats = np.full((N,), floor, dtype=int)  # like `np.ones(N) * floor` but more efficient
 
     for i in range(extra_count):
         repeats[i] += 1  # Assign extra repetitions deterministically from the start
