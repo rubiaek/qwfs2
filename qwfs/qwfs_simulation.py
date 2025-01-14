@@ -52,7 +52,6 @@ class QWFSSimulation:
         self.T = self.get_diffuser()
 
     def propagate(self, use_torch=False):
-
         fft = torch.fft.fft if use_torch else np.fft.fft
 
         if self.config == 'SLM1':
@@ -98,7 +97,7 @@ class QWFSSimulation:
         return -I_focus
 
 
-    def optimize(self, algo="autograd-adam", out_mode=None):
+    def optimize(self, algo="autograd-lbfgs", out_mode=None):
         if out_mode is None:
             out_mode = self.DEFAULT_OUT_MODE
 
@@ -158,14 +157,11 @@ class QWFSSimulation:
             raise ValueError("Unsupported optimization method")
 
     def _autograd(self, out_mode=None, optimizer_name='autograd-adam', lr=0.01):
-        """ Note that this doesn't work for cost functions other than `energy` """
-        # param init
         phases = torch.zeros(self.N_pixels, requires_grad=True, dtype=torch.float64)
 
         if optimizer_name.lower() == 'autograd-adam':
             optimizer = torch.optim.Adam([phases], lr=lr)
         elif optimizer_name.lower() == 'autograd-lbfgs':
-            # This is much slower, and average over 10 gives very sligthly better results (0.875->0.877; 1.861->1.883)
             optimizer = torch.optim.LBFGS([phases], lr=lr, max_iter=20, line_search_fn="strong_wolfe")
         else:
             raise ValueError(f"Unsupported optimizer: {optimizer_name}")

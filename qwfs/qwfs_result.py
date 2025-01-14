@@ -64,7 +64,6 @@ class QWFSResult:
         self.__dict__.update(data)
 
     def show_scatterplots(self):
-        # Create a figure with N_T_methods rows and N_configs columns
         fig, axes = plt.subplots(
             len(self.T_methods),
             len(self.configs),
@@ -82,12 +81,7 @@ class QWFSResult:
         colors = plt.cm.Set1(np.linspace(0, 1, len(self.algos)))
 
         # Reference lines
-        reference_lines = [
-            np.pi / 4,  # π/4
-            (np.pi / 4) ** 2,  # (π/4)²
-            1  # 1
-        ]
-
+        reference_lines = [np.pi/4, (np.pi/4)**2, 1]
         # Line styles for reference lines
         line_styles = ['--', ':', '-']
         line_colors = ['gray', 'gray', 'black']
@@ -108,21 +102,10 @@ class QWFSResult:
                 for algo_idx, algo in enumerate(self.algos):
                     # Add a bit of jitter to x-position to spread out points
                     x = np.random.normal(algo_idx, 0.1, len(data[:, algo_idx]))
-                    ax.scatter(
-                        x,
-                        data[:, algo_idx],
-                        color=colors[algo_idx],
-                        alpha=0.3,  # More transparent
-                        s=10,  # Smaller markers
-                        label=algo
-                    )
+                    ax.scatter(x, data[:, algo_idx], color=colors[algo_idx],
+                        alpha=0.3, s=10,  label=algo)
                 ax.set_ylim(bottom=0)
-
-                # Set title and labels
                 ax.set_title(f'{config}')
-                # ax.set_xlabel('Algorithms')
-
-                # Set x-ticks to algorithm names
                 ax.set_xticks(range(len(self.algos)))
                 ax.set_xticklabels(self.algos, rotation=45, ha='right')
 
