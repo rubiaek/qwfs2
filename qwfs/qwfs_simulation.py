@@ -73,6 +73,12 @@ class QWFSSimulation:
         elif self.config == 'SLM3' or self.config == 'SLM3-same-mode':
             after_SLM_second_time = self.slm_phases * (self.T @ self.T.transpose() @ (self.slm_phases * self.v_in))
             v_out = fft(after_SLM_second_time) / np.sqrt(self.N)
+        elif self.config == 'SLM5' or self.config == 'SLM5-same-mode':
+            # a general mixing between SLM2 modes, when SLM2 is not at the crystal plane
+            after_slm1 = self.slm_phases * (self.T.transpose() @ self.v_in)
+            after_ft1 = fft(after_slm1) / np.sqrt(self.N)
+            after_T2 = self.T @ (self.slm_phases * after_ft1)
+            v_out = fft(after_T2) / np.sqrt(self.N)
         else:
             raise NotImplementedError('WAT?')
 
@@ -252,7 +258,7 @@ class QWFSSimulation:
                     for algo_no, algo in enumerate(algos):
                         start_t = time.time()
                         self.slm_phases = np.exp(1j * np.zeros(self.N, dtype=np.complex128))
-                        if config == 'SLM3-same-mode' or config == 'SLM1-same-mode' or config == 'SLM2-same-mode':
+                        if config == 'SLM3-same-mode' or config == 'SLM1-same-mode' or config == 'SLM2-same-mode' or config == 'SLM5-same-mode':
                             # this is the equivalent output mode after fourier to the default input of flat phase ones
                             out_mode = 0
                         else:
