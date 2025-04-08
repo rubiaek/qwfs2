@@ -45,6 +45,9 @@ class QWFSSimulation:
             Q, R = np.linalg.qr(Z)
             D = np.diag(np.diag(R) / np.abs(np.diag(R)))
             return Q @ D
+        elif self.T_method == 'thin':
+            V = np.exp(1j*np.random.uniform(0, 2*np.pi, self.N))
+            return np.diag(V)
         else:
             raise NotImplementedError()
 
