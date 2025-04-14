@@ -63,7 +63,7 @@ class QWFSResult:
         data = np.load(path, allow_pickle=True)
         self.__dict__.update(data)
 
-    def show_scatterplots(self):
+    def show_scatterplots(self, config_names=None):
         fig, axes = plt.subplots(
             len(self.T_methods),
             len(self.configs),
@@ -105,7 +105,7 @@ class QWFSResult:
                     ax.scatter(x, data[:, algo_idx], color=colors[algo_idx],
                         alpha=0.3, s=10,  label=algo)
                 ax.set_ylim(bottom=0)
-                ax.set_title(f'{config}')
+                ax.set_title(f'{config if config_names is None else config_names[config_idx]}')
                 ax.set_xticks(range(len(self.algos)))
                 ax.set_xticklabels(self.algos, rotation=45, ha='right')
 
