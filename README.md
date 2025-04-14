@@ -14,7 +14,7 @@ This repository contains the Python code implementation for the following public
 - `qwfs_result.py`: Contains the QWFSResult class, that holds the data, and has saveto and loadfrom methods.
 - `generate_results.ipynb`: A notebook for generating the results in the paper.
 - `generate_results.ipynb`: A notebook using the output of `generate_results.ipynb` to generate the figures that are shown in the paper, as well as aditional figures. 
-- `data\`: directory saving previously run restults
+- `data\`: directory saving previously run results
 
 ## Citation
 Please cite the publication if you use this code or data in your research.
