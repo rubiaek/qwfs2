@@ -63,7 +63,7 @@ class QWFSResult:
         data = np.load(path, allow_pickle=True)
         self.__dict__.update(data)
 
-    def show_scatterplots(self, config_names=None):
+    def show_scatterplots(self, config_names=None, algo_names=None):
         fig, axes = plt.subplots(
             len(self.T_methods),
             len(self.configs),
@@ -103,11 +103,11 @@ class QWFSResult:
                     # Add a bit of jitter to x-position to spread out points
                     x = np.random.normal(algo_idx, 0.1, len(data[:, algo_idx]))
                     ax.scatter(x, data[:, algo_idx], color=colors[algo_idx],
-                        alpha=0.3, s=10,  label=algo)
+                        alpha=0.3, s=10,  label=algo if algo_names is None else algo_names[algo_idx])
                 ax.set_ylim(bottom=0)
                 ax.set_title(f'{config if config_names is None else config_names[config_idx]}')
                 ax.set_xticks(range(len(self.algos)))
-                ax.set_xticklabels(self.algos, rotation=45, ha='right')
+                ax.set_xticklabels(self.algos if algo_names is None else algo_names, rotation=45, ha='right')
 
                 if config_idx == 0:
                     ax.set_ylabel(t_method, fontweight='bold',fontsize=12)
