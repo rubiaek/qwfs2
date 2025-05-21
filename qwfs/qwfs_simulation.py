@@ -27,6 +27,7 @@ class QWFSSimulation:
         self.T_method = T_method
         self.config = config
         self.sig_for_gauss_iid = np.sqrt(2)/2
+        self.cost_function = 'energy'
         self.T = self.get_diffuser()
 
         self.v_in = 1/np.sqrt(self.N) * np.ones(self.N, dtype=np.complex128)
@@ -62,6 +63,11 @@ class QWFSSimulation:
             v_out = fft(after_T) / np.sqrt(self.N)
         elif self.config == 'SLM1-only-T':
             v_out = self.T @ (self.slm_phases * self.v_in)
+        elif self.config == 'SLM1-only-TT':
+            v_out = self.T @ self.T.transpose() @ (self.slm_phases * self.v_in)
+        elif self.config == 'SLM1-after':
+            after_T = self.slm_phases * (self.T @ self.T.transpose() @ self.v_in)
+            v_out = fft(after_T) / np.sqrt(self.N)
         elif self.config == 'SLM2' or self.config == 'SLM2-same-mode':
             after_T2 = self.T @ (self.slm_phases * (self.T.transpose() @ self.v_in))
             v_out = fft(after_T2) / np.sqrt(self.N)
@@ -103,8 +109,14 @@ class QWFSSimulation:
         I_focus = I_out[out_mode]
         self.f_calls += 1
 
-        return -I_focus
-
+        if self.cost_function == 'energy':
+            return -I_focus
+        elif self.cost_function == 'contrast':
+            return -I_focus / I_out.sum()
+        elif self.cost_function == 'total_energy':
+            return -I_out.sum()
+        else:
+            raise NotImplementedError()
 
     def optimize(self, algo="autograd-lbfgs", out_mode=None):
         if out_mode is None:

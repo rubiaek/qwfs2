@@ -72,7 +72,9 @@ class QWFSResult:
         )
 
         # Ensure axes is always a 2D array, even if one dimension is 1
-        if len(self.T_methods) == 1:
+        if len(self.T_methods) == 1 and len(self.configs) == 1:
+          axes = np.array([np.array([axes])])
+        elif len(self.T_methods) == 1:
             axes = axes.reshape(1, -1)
         elif len(self.configs) == 1:
             axes = axes.reshape(-1, 1)
